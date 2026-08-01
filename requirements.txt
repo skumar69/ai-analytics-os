@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pandas
+numpy
+plotly
+streamlit
+openpyxl
+pydantic
+python-dotenv
