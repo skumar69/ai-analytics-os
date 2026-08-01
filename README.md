@@ -1,31 +1,77 @@
-# VisionIQ
+# AI Analytics OS
 
-AI That Understands Business
+> AI-powered Analytics Platform for Business Intelligence, KPI Monitoring, Semantic Search and Enterprise Insights.
 
-Founder:
-Sanjeev Kumar
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Active-success)
 
-Designed and Architected by:
-Sanjeev Kumar
+---
 
-Copyright © 2026
-All Rights Reserved.
+## Features
 
-## Overview
+- AI KPI Engine
+- Semantic AI Search
+- Enrichment Engine
+- VisionIQ Dashboard
+- Interactive Analytics
+- REST API Backend
+- Modern Frontend
+- Responsive Website
 
-VisionIQ is an AI-powered analytics platform that transforms raw business data into actionable intelligence using semantic understanding, capability packs, and automated insight generation.
+---
 
-## Project Structure
+## Tech Stack
 
-- backend/
-- frontend/
-- docs/
-- database/
-- sample_data/
-- tests/
+Python
 
-## Getting started
+FastAPI
 
-1. Create a virtual environment.
-2. Install dependencies from requirements.txt.
-3. Run the backend orchestrator and frontend dashboard.
+JavaScript
+
+HTML5
+
+CSS3
+
+GitHub
+
+---
+
+## Folder Structure
+
+backend/
+frontend/
+website/
+tests/
+
+---
+
+## Getting Started
+
+Clone
+
+```bash
+git clone https://github.com/skumar69/ai-analytics-os.git
+```
+
+Install
+
+```bash
+pip install -r requirements.txt
+```
+
+Run
+
+```bash
+python app.py
+```
+
+---
+
+## Vision
+
+Building the next generation AI Analytics Platform.
+
+Created by
+
+**Sanjeev Kumar**
