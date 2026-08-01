@@ -1,28 +1,36 @@
 import streamlit as st
 
+from backend.config.branding import COMPANY_NAME, PRODUCT_NAME, TAGLINE, COPYRIGHT, FOUNDER, WEBSITE
+
 
 def render_about() -> None:
-    st.title("VisionIQ™")
+    st.title(PRODUCT_NAME)
 
     st.subheader("Designed and Architected by")
-    st.write("**Sanjeev Kumar**")
+    st.write(f"**{FOUNDER}**")
     st.write("Founder & Chief Architect")
 
     st.markdown(
-        """
+        f"""
     ### Vision
     AI That Understands Business
 
     ### Mission
     Transform Data into Decisions.
 
+    ### Tagline
+    {TAGLINE}
+
     ### Copyright
-    © 2026 All Rights Reserved.
+    {COPYRIGHT}
+
+    ### Website
+    {WEBSITE}
     """
     )
 
     st.info(
-        "VisionIQ is designed to turn messy operational data into structured insight, repeatable KPIs, and AI-assisted decision support."
+        f"{PRODUCT_NAME} is designed to turn messy operational data into structured insight, repeatable KPIs, and AI-assisted decision support."
     )
 
     st.markdown(
