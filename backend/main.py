@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from utils.logger import get_logger
+
+log = get_logger("visioniq")
 
 # Upload API
 from upload_api import router as upload_router
@@ -10,6 +13,7 @@ from api.notifications_api import router as notifications_router
 from api.ai_api import router as ai_router
 from api.system_api import router as system_router
 from api.analytics_api import router as analytics_router
+from api.auth_api import router as auth_router
 
 app = FastAPI(
     title="VisionIQ AI Analytics OS",
@@ -41,3 +45,4 @@ app.include_router(notifications_router)
 app.include_router(ai_router)
 app.include_router(system_router)
 app.include_router(analytics_router)
+app.include_router(auth_router)

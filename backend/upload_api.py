@@ -2,8 +2,10 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 import pandas as pd
 from datetime import datetime
 from services.data_service import set_dataframe
+from utils.logger import get_logger
 
 router = APIRouter()
+log = get_logger("upload_api")
 
 # ==========================================================
 # Global Storage (Development)
@@ -51,20 +53,7 @@ async def upload_excel(file: UploadFile = File(...)):
         # Keep legacy global in sync during migration
         uploaded_df = df
 
-        # -----------------------------------
-        # Console Output
-        # -----------------------------------
-
-        print("\n==========================================")
-        print(" VisionIQ Excel Upload Successful")
-        print("==========================================")
-        print(f"Filename       : {file.filename}")
-        print(f"Uploaded Time  : {datetime.now()}")
-        print(f"Rows           : {len(df)}")
-        print(f"Columns        : {len(df.columns)}")
-        print("------------------------------------------")
-        print(df.head())
-        print("==========================================\n")
+        log.info("Upload: %s | rows=%d cols=%d", file.filename, len(df), len(df.columns))
 
         # -----------------------------------
         # Response

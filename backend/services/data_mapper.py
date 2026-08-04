@@ -15,7 +15,8 @@ FIELD_MAP: dict[str, list[str]] = {
     "completed_on":       ["basic finish date", "actual finish", "actual finish date",
                            "completed on", "end date"],
     "description":        ["description", "short text", "order description", "notif. text"],
-    "maintenance_type":   ["maintenance activity type", "activity type", "maint. act. type"],
+    "maintenance_type":   ["maintenance activity type", "activity type", "maint. act. type",
+                           "maintenance_type", "maint type"],
 }
 
 

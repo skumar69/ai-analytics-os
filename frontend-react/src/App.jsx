@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
+import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import DashboardHeader from "./components/DashboardHeader";
@@ -25,6 +27,10 @@ import {
 } from "@mui/material";
 
 function App() {
+
+  const { user } = useAuth();
+
+  if (!user) return <LoginPage />;
 
   const [stats, setStats] = useState({
     work_orders: 0,
