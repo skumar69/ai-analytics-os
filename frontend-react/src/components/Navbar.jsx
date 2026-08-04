@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Box, Chip, Button, Tooltip } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import LogoutIcon from "@mui/icons-material/Logout";
+import LogoutIcon from "@mui/icons-material/ExitToApp";
 import { useAuth } from "../context/AuthContext";
 
 const ROLE_COLOR = {
