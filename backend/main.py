@@ -9,6 +9,7 @@ from api.assets_api import router as assets_router
 from api.notifications_api import router as notifications_router
 from api.ai_api import router as ai_router
 from api.system_api import router as system_router
+from api.analytics_api import router as analytics_router
 
 app = FastAPI(
     title="VisionIQ AI Analytics OS",
@@ -39,3 +40,4 @@ app.include_router(assets_router)
 app.include_router(notifications_router)
 app.include_router(ai_router)
 app.include_router(system_router)
+app.include_router(analytics_router)

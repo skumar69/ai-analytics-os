@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
@@ -8,6 +9,7 @@ import FileUpload from "./components/FileUpload";
 import AIInsights from "./components/AIInsights";
 import HighRiskAssets from "./components/HighRiskAssets";
 import NotificationTable from "./components/NotificationTable";
+import ReliabilityDashboard from "./pages/ReliabilityDashboard";
 
 import WorkOrderChart from "./charts/WorkOrderChart";
 import PriorityPieChart from "./charts/PriorityPieChart";
@@ -89,107 +91,50 @@ function App() {
         }}
       >
 
-        {/* Dashboard Header */}
+        <Routes>
 
-        <DashboardHeader />
+          {/* Main Dashboard */}
+          <Route path="/" element={
+            <>
+              <DashboardHeader />
+              <KPISection stats={stats} />
 
-        {/* KPI Cards */}
+              <Paper elevation={4} sx={{ mt: 5, p: 3, borderRadius: 3 }}>
+                <Typography variant="h5" fontWeight="bold">
+                  📈 Monthly Work Order Trend
+                </Typography>
+                <Divider sx={{ my: 2 }} />
+                <WorkOrderChart />
+              </Paper>
 
-        <KPISection stats={stats} />
+              <Typography variant="h5" fontWeight="bold" sx={{ mt: 5, mb: 2 }}>
+                📊 Incident Analytics
+              </Typography>
 
-        {/* Monthly Trend */}
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}><PriorityPieChart /></Grid>
+                <Grid item xs={12} md={6}><StatusBarChart /></Grid>
+                <Grid item xs={12} md={6}><PlantChart /></Grid>
+                <Grid item xs={12} md={6}><AIInsights /></Grid>
+              </Grid>
 
-        <Paper
-          elevation={4}
-          sx={{
-            mt: 5,
-            p: 3,
-            borderRadius: 3,
-          }}
-        >
+              <HighRiskAssets />
+              <NotificationTable />
 
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-          >
-            📈 Monthly Work Order Trend
-          </Typography>
+              <Paper elevation={4} sx={{ mt: 5, p: 3, borderRadius: 3 }}>
+                <Typography variant="h5" fontWeight="bold">
+                  📂 Upload SAP Excel File
+                </Typography>
+                <Divider sx={{ my: 2 }} />
+                <FileUpload refreshDashboard={fetchDashboard} />
+              </Paper>
+            </>
+          } />
 
-          <Divider sx={{ my: 2 }} />
+          {/* Reliability Analytics */}
+          <Route path="/reliability" element={<ReliabilityDashboard />} />
 
-          <WorkOrderChart />
-
-        </Paper>
-
-        {/* Analytics */}
-
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-          sx={{
-            mt: 5,
-            mb: 2,
-          }}
-        >
-          📊 Incident Analytics
-        </Typography>
-
-        <Grid
-          container
-          spacing={3}
-        >
-
-          <Grid item xs={12} md={6}>
-            <PriorityPieChart />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <StatusBarChart />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <PlantChart />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <AIInsights />
-          </Grid>
-
-        </Grid>
-
-        {/* High Risk Assets */}
-
-        <HighRiskAssets />
-
-        {/* Notifications */}
-
-        <NotificationTable />
-
-        {/* Upload */}
-
-        <Paper
-          elevation={4}
-          sx={{
-            mt: 5,
-            p: 3,
-            borderRadius: 3,
-          }}
-        >
-
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-          >
-            📂 Upload SAP Excel File
-          </Typography>
-
-          <Divider sx={{ my: 2 }} />
-
-          <FileUpload
-            refreshDashboard={fetchDashboard}
-          />
-
-        </Paper>
+        </Routes>
 
       </Container>
 

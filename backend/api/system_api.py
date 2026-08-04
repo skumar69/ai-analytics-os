@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from services.data_service import has_data, get_column_map
 
 router = APIRouter(
     prefix="",
@@ -33,3 +34,11 @@ def api_info():
         "version": "3.0.0",
         "status": "Running",
     }
+
+
+@router.get("/data/schema")
+def data_schema():
+    """Show which SAP columns were detected and mapped after upload."""
+    if not has_data():
+        return {"uploaded": False, "message": "No data uploaded yet."}
+    return {"uploaded": True, "column_map": get_column_map()}
