@@ -12,12 +12,14 @@ import EngineeringIcon from "@mui/icons-material/Engineering";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import SettingsIcon from "@mui/icons-material/Settings";
+import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 
 const drawerWidth = 220;
 
 const menuItems = [
-  { text: "Dashboard",            icon: <DashboardIcon />,   path: "/" },
+  { text: "Dashboard",             icon: <DashboardIcon />,   path: "/" },
   { text: "Reliability Analytics", icon: <EngineeringIcon />, path: "/reliability" },
+  { text: "Executive Dashboard",   icon: <LeaderboardIcon />, path: "/executive" },
   { text: "AI Assistant",          icon: <SmartToyIcon />,    path: "/ai" },
   { text: "Analytics",             icon: <AnalyticsIcon />,   path: "/analytics" },
   { text: "Settings",              icon: <SettingsIcon />,    path: "/settings" },

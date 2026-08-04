@@ -12,6 +12,7 @@ import AIInsights from "./components/AIInsights";
 import HighRiskAssets from "./components/HighRiskAssets";
 import NotificationTable from "./components/NotificationTable";
 import ReliabilityDashboard from "./pages/ReliabilityDashboard";
+import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 
 import WorkOrderChart from "./charts/WorkOrderChart";
 import PriorityPieChart from "./charts/PriorityPieChart";
@@ -139,6 +140,9 @@ function App() {
 
           {/* Reliability Analytics */}
           <Route path="/reliability" element={<ReliabilityDashboard />} />
+
+          {/* Executive Dashboard */}
+          <Route path="/executive" element={<ExecutiveDashboard />} />
 
         </Routes>
 
