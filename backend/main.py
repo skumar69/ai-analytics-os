@@ -1,0 +1,41 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+# Upload API
+from upload_api import router as upload_router
+from api.charts_api import router as charts_router
+from api.dashboard_api import router as dashboard_router
+from api.assets_api import router as assets_router
+from api.notifications_api import router as notifications_router
+from api.ai_api import router as ai_router
+from api.system_api import router as system_router
+
+app = FastAPI(
+    title="VisionIQ AI Analytics OS",
+    version="3.0.0",
+    description="Enterprise AI Analytics Platform for SAP PM / EAM",
+)
+
+# ==========================================================
+# CORS
+# ==========================================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ==========================================================
+# Register Routers
+# ==========================================================
+
+app.include_router(upload_router)
+app.include_router(charts_router)
+app.include_router(dashboard_router)
+app.include_router(assets_router)
+app.include_router(notifications_router)
+app.include_router(ai_router)
+app.include_router(system_router)
