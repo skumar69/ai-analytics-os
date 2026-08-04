@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    container_name: visioniq-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    environment:
+      - VISIONIQ_ENV=production
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend-react
+    container_name: visioniq-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

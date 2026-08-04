@@ -31,17 +31,20 @@ def calculate_mttr(df: Optional[pd.DataFrame] = None) -> dict:
     if df is None and not has_data():
         return {"mttr_days": 3.2, "sample_size": 0, "source": "demo"}
 
-    df = _resolve(df)[df["status"].apply(_is_completed)].copy() if _resolve(df) is not None else pd.DataFrame()
-    df["_start"] = _parse_dates(df["created_on"])
-    df["_end"]   = _parse_dates(df["completed_on"])
-    df = df.dropna(subset=["_start", "_end"])
-    df = df[df["_end"] >= df["_start"]]
+    resolved = _resolve(df)
+    if resolved is None:
+        return {"mttr_days": None, "sample_size": 0, "source": "uploaded"}
+    resolved = resolved[resolved["status"].apply(_is_completed)].copy()
+    resolved["_start"] = _parse_dates(resolved["created_on"])
+    resolved["_end"]   = _parse_dates(resolved["completed_on"])
+    resolved = resolved.dropna(subset=["_start", "_end"])
+    resolved = resolved[resolved["_end"] >= resolved["_start"]]
 
-    if df.empty:
+    if resolved.empty:
         return {"mttr_days": None, "sample_size": 0, "source": "uploaded", "note": "No date pairs found"}
 
-    df["_days"] = (df["_end"] - df["_start"]).dt.days
-    return {"mttr_days": round(df["_days"].mean(), 1), "sample_size": len(df), "source": "uploaded"}
+    resolved["_days"] = (resolved["_end"] - resolved["_start"]).dt.days
+    return {"mttr_days": round(resolved["_days"].mean(), 1), "sample_size": len(resolved), "source": "uploaded"}
 
 
 def calculate_mtbf(df: Optional[pd.DataFrame] = None) -> dict:
@@ -236,10 +239,12 @@ def get_equipment_detail(equipment: str) -> dict:
     df = get_normalized_dataframe()
     rows = df[df["equipment"].str.strip().str.lower() == equipment.strip().lower()]
     work_orders = rows[["work_order", "status", "priority", "created_on", "completed_on", "description"]].copy()
-    work_orders = work_orders.replace("", None)
+    # Ensure NaN/None are serialized as null-safe strings
+    work_orders = work_orders.fillna("").astype(str).replace("nan", "")
+    records = [{k: (v if v != "" else None) for k, v in row.items()} for row in work_orders.to_dict(orient="records")]
     return {
         "equipment": equipment,
         "total": len(rows),
-        "work_orders": work_orders.to_dict(orient="records"),
+        "work_orders": records,
     }
 
