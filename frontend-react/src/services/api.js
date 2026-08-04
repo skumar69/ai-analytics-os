@@ -1,4 +1,4 @@
-const API = "http://127.0.0.1:8000";
+const API = "https://visioniq-backend-xhbo.onrender.com";
 
 export async function getStats() {
   const res = await fetch(`${API}/stats`);
