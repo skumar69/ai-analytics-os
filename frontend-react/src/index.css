@@ -1,0 +1,208 @@
+:root {
+  --primary: #2563eb;
+  --secondary: #7c3aed;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --background: #0f172a;
+  --surface: #1e293b;
+  --card: #111827;
+
+  --text: #f8fafc;
+  --text-light: #cbd5e1;
+
+  --border: #334155;
+
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+
+  --radius: 18px;
+
+  --transition: all 0.3s ease;
+
+  font-family:
+    "Inter",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  background: var(--background);
+  color: var(--text);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(
+    135deg,
+    #0f172a,
+    #111827,
+    #1e293b
+  );
+
+  color: var(--text);
+
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Headings */
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: white;
+  font-weight: 700;
+}
+
+p {
+  color: var(--text-light);
+}
+
+/* Dashboard Cards */
+
+.dashboard-card {
+  background: rgba(30, 41, 59, 0.85);
+
+  backdrop-filter: blur(10px);
+
+  border-radius: var(--radius);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow: var(--shadow);
+
+  transition: var(--transition);
+}
+
+.dashboard-card:hover {
+  transform: translateY(-6px);
+
+  box-shadow:
+    0 20px 40px rgba(37,99,235,.35);
+}
+
+/* KPI Numbers */
+
+.kpi-value {
+
+  font-size: 42px;
+
+  font-weight: bold;
+
+  color: var(--primary);
+}
+
+.kpi-title {
+
+  color: var(--text-light);
+
+  font-size: 15px;
+}
+
+/* Charts */
+
+.chart-container {
+
+  background: var(--surface);
+
+  border-radius: var(--radius);
+
+  padding: 24px;
+
+  box-shadow: var(--shadow);
+
+  margin-top: 30px;
+}
+
+/* Upload */
+
+.upload-card {
+
+  background: rgba(30,41,59,.85);
+
+  border: 2px dashed var(--primary);
+
+  border-radius: var(--radius);
+
+  padding: 30px;
+
+  text-align: center;
+
+  margin-top: 40px;
+}
+
+/* Buttons */
+
+button {
+
+  transition: .3s;
+
+}
+
+button:hover {
+
+  transform: scale(1.05);
+
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+
+  width: 10px;
+
+}
+
+::-webkit-scrollbar-track {
+
+  background: #111827;
+
+}
+
+::-webkit-scrollbar-thumb {
+
+  background: var(--primary);
+
+  border-radius: 20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover {
+
+  background: #1d4ed8;
+
+}
+
+/* Responsive */
+
+@media (max-width:900px){
+
+.dashboard-card{
+
+margin-bottom:20px;
+
+}
+
+h1{
+
+font-size:34px;
+
+}
+
+.kpi-value{
+
+font-size:32px;
+
+}
+
+}
