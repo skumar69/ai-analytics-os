@@ -1,6 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Component } from "react";
 import { Routes, Route } from "react-router-dom";
+import { Box, Typography, Button, Container, Grid, Paper, Divider } from "@mui/material";
 import { useAuth } from "./context/AuthContext";
+
+// Catches render errors so the app never goes completely blank
+class ErrorBoundary extends Component {
+  state = { hasError: false, error: null };
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ p: 4, textAlign: "center", mt: 8 }}>
+          <Typography variant="h5" color="error" gutterBottom>Something went wrong</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {this.state.error?.message}
+          </Typography>
+          <Button variant="contained" onClick={() => window.location.reload()}>Reload</Button>
+        </Box>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
@@ -13,25 +34,22 @@ import HighRiskAssets from "./components/HighRiskAssets";
 import NotificationTable from "./components/NotificationTable";
 import ReliabilityDashboard from "./pages/ReliabilityDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import AICopilot from "./pages/AICopilot";
 
 import WorkOrderChart from "./charts/WorkOrderChart";
 import PriorityPieChart from "./charts/PriorityPieChart";
 import StatusBarChart from "./charts/StatusBarChart";
 import PlantChart from "./charts/PlantChart";
 
-import {
-  Container,
-  Grid,
-  Typography,
-  Paper,
-  Divider,
-} from "@mui/material";
 
-function App() {
-
+// AuthGate renders LoginPage or App — hooks live in App so they're always called
+function AuthGate() {
   const { user } = useAuth();
-
   if (!user) return <LoginPage />;
+  return <ErrorBoundary><AppShell /></ErrorBoundary>;
+}
+
+function AppShell() {
 
   const [stats, setStats] = useState({
     work_orders: 0,
@@ -144,6 +162,9 @@ function App() {
           {/* Executive Dashboard */}
           <Route path="/executive" element={<ExecutiveDashboard />} />
 
+          {/* AI Copilot */}
+          <Route path="/ai" element={<AICopilot />} />
+
         </Routes>
 
       </Container>
@@ -152,6 +173,10 @@ function App() {
 
   );
 
+}
+
+function App() {
+  return <AuthGate />;
 }
 
 export default App;

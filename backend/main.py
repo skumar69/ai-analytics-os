@@ -15,6 +15,7 @@ from api.system_api import router as system_router
 from api.analytics_api import router as analytics_router
 from api.auth_api import router as auth_router
 from api.sap_api import router as sap_router
+from api.copilot_api import router as copilot_router
 
 app = FastAPI(
     title="VisionIQ AI Analytics OS",
@@ -48,3 +49,4 @@ app.include_router(system_router)
 app.include_router(analytics_router)
 app.include_router(auth_router)
 app.include_router(sap_router)
+app.include_router(copilot_router)
