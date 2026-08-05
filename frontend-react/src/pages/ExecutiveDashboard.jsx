@@ -5,7 +5,7 @@ import {
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-
+import API from "../services/api";
 import AssetHealthCard from "../components/AssetHealthCard";
 import BacklogChart from "../components/BacklogChart";
 import MTTRTrendChart from "../components/MTTRTrendChart";
@@ -13,7 +13,7 @@ import PlannerPerformanceTable from "../components/PlannerPerformanceTable";
 import RepeatFailureTable from "../components/RepeatFailureTable";
 import FilterBar from "../components/FilterBar";
 
-const API = "http://127.0.0.1:8000";
+//const API = "http://127.0.0.1:8000";
 
 function buildQuery(filters) {
   const qs = new URLSearchParams(filters).toString();

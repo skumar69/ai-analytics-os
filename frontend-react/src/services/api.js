@@ -1,99 +1,71 @@
-const API = "https://visioniq-backend-xhbo.onrender.com";
+// ==========================================
+// VisionIQ API Configuration
+// ==========================================
+
+const API = import.meta.env.VITE_API_URL;
+
+if (!API) {
+  throw new Error(
+    "VITE_API_URL is not defined. Please check your .env file."
+  );
+}
+
+// ==========================================
+// Dashboard APIs
+// ==========================================
 
 export async function getStats() {
   const res = await fetch(`${API}/stats`);
-  return res.json();
+
+  if (!res.ok) {
+    throw new Error("Failed to load dashboard statistics");
+  }
+
+  return await res.json();
 }
 
 export async function getTrend() {
   const res = await fetch(`${API}/workorder-trend`);
-  return res.json();
+
+  if (!res.ok) {
+    throw new Error("Failed to load work order trend");
+  }
+
+  return await res.json();
 }
 
-export async function getPriorityChart() {
-  const res = await fetch(`${API}/priority-chart`);
-  return res.json();
+export async function getPriority() {
+  const res = await fetch(`${API}/priority-distribution`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load priority distribution");
+  }
+
+  return await res.json();
 }
 
-export async function getStatusChart() {
-  const res = await fetch(`${API}/status-chart`);
-  return res.json();
+export async function getStatus() {
+  const res = await fetch(`${API}/status-distribution`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load status distribution");
+  }
+
+  return await res.json();
 }
 
-export async function getPlantChart() {
-  const res = await fetch(`${API}/plant-chart`);
-  return res.json();
+export async function getPlant() {
+  const res = await fetch(`${API}/plant-distribution`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load plant distribution");
+  }
+
+  return await res.json();
 }
 
-export async function getAIInsights() {
-  const res = await fetch(`${API}/ai-insights`);
-  return res.json();
-}
+// ==========================================
+// Export Base URL
+// ==========================================
 
-export async function getAssets() {
-  const res = await fetch(`${API}/high-risk-assets`);
-  return res.json();
-}
-
-export async function getNotifications() {
-  const res = await fetch(`${API}/notifications`);
-  return res.json();
-}
-
-export async function uploadExcel(formData) {
-  const res = await fetch(`${API}/upload`, {
-    method: "POST",
-    body: formData,
-  });
-  return res.json();
-}
-
-export async function getAnalyticsSummary() {
-  const res = await fetch(`${API}/analytics/summary`);
-  return res.json();
-}
-
-export async function getMTTR() {
-  const res = await fetch(`${API}/analytics/mttr`);
-  return res.json();
-}
-
-export async function getMTBF() {
-  const res = await fetch(`${API}/analytics/mtbf`);
-  return res.json();
-}
-
-export async function getPMCompliance() {
-  const res = await fetch(`${API}/analytics/pm-compliance`);
-  return res.json();
-}
-
-export async function getBreakdownPercentage() {
-  const res = await fetch(`${API}/analytics/breakdown-percentage`);
-  return res.json();
-}
-
-export async function getBacklog() {
-  const res = await fetch(`${API}/analytics/backlog`);
-  return res.json();
-}
-
-export async function getWorkOrderAge() {
-  const res = await fetch(`${API}/analytics/work-order-age`);
-  return res.json();
-}
-
-export async function getHealthScore() {
-  const res = await fetch(`${API}/analytics/health-score`);
-  return res.json();
-}
-
-export async function getTopFailures() {
-  const res = await fetch(`${API}/analytics/top-failures`);
-  return res.json();
-}
-
-export async function getAssetCriticality() {
-  const res = await fetch(`${API}/analytics/asset-criticality`);
-  return res.json();
-}
+export default API;

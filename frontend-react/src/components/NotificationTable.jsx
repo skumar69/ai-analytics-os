@@ -15,6 +15,8 @@ import {
   Alert,
 } from "@mui/material";
 
+import API from "../services/api";
+
 export default function NotificationTable() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,29 +31,33 @@ export default function NotificationTable() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/notifications"
-      );
+      const response = await fetch(`${API}/notifications`);
 
       if (!response.ok) {
-        throw new Error("Unable to load notifications.");
+        throw new Error(`HTTP Error: ${response.status}`);
       }
 
       const data = await response.json();
 
       console.log("Notifications:", data);
 
-      setRows(data);
+      if (Array.isArray(data)) {
+        setRows(data);
+      } else {
+        setRows([]);
+      }
+
     } catch (err) {
-      console.error(err);
-      setError(err.message);
+      console.error("Notification Error:", err);
+      setError(err.message || "Unable to load notifications.");
+      setRows([]);
     } finally {
       setLoading(false);
     }
   };
 
   const getPriorityColor = (priority) => {
-    switch (priority?.toLowerCase()) {
+    switch ((priority || "").toLowerCase()) {
       case "critical":
         return "error";
       case "high":
@@ -64,13 +70,12 @@ export default function NotificationTable() {
   };
 
   const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
+    switch ((status || "").toLowerCase()) {
       case "open":
         return "error";
       case "in progress":
         return "warning";
       case "completed":
-        return "success";
       case "closed":
         return "success";
       default:
@@ -135,10 +140,7 @@ export default function NotificationTable() {
 
             <TableBody>
               {rows.map((row, index) => (
-                <TableRow
-                  key={index}
-                  hover
-                >
+                <TableRow key={index} hover>
                   <TableCell>{row.notification}</TableCell>
 
                   <TableCell>{row.equipment}</TableCell>

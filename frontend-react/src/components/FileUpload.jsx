@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DataPreview from "./DataPreview";
+import API from "../services/api";
 
 import {
   Paper,
@@ -76,32 +77,30 @@ export default function FileUpload({ refreshDashboard }) {
     try {
       setLoading(true);
 
-      const response = await fetch("http://127.0.0.1:8000/upload", {
+      const response = await fetch(`${API}/upload`, {
         method: "POST",
         body: formData,
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.detail || `Upload failed (${response.status})`
+        );
+      }
 
       const data = await response.json();
 
       console.log("Upload Result:", data);
 
-      if (!response.ok) {
-        throw new Error(data.detail || "Upload failed");
-      }
-
       setResult(data);
       setPreview(data.preview || []);
-
-      // ===========================================
-      // Refresh Dashboard Automatically
-      // ===========================================
 
       if (refreshDashboard) {
         await refreshDashboard();
       }
-
     } catch (error) {
-      console.error(error);
+      console.error("Upload Error:", error);
       alert(error.message);
     } finally {
       setLoading(false);
@@ -137,7 +136,6 @@ export default function FileUpload({ refreshDashboard }) {
         <Divider sx={{ mb: 3 }} />
 
         <Stack spacing={2}>
-
           <input
             type="file"
             accept=".xlsx,.xls"
@@ -157,7 +155,6 @@ export default function FileUpload({ refreshDashboard }) {
           )}
 
           <Box display="flex" gap={2}>
-
             <Button
               variant="contained"
               size="large"
@@ -189,9 +186,7 @@ export default function FileUpload({ refreshDashboard }) {
             >
               Reset
             </Button>
-
           </Box>
-
         </Stack>
 
         {result && (
@@ -210,7 +205,7 @@ export default function FileUpload({ refreshDashboard }) {
 
             <Typography>
               <strong>Total Columns:</strong>{" "}
-              {result.columns.length}
+              {result.columns?.length || 0}
             </Typography>
 
             <Typography sx={{ mt: 1 }}>
@@ -218,7 +213,7 @@ export default function FileUpload({ refreshDashboard }) {
             </Typography>
 
             <Typography variant="body2">
-              {result.columns.join(", ")}
+              {(result.columns || []).join(", ")}
             </Typography>
 
             <Typography
@@ -231,11 +226,9 @@ export default function FileUpload({ refreshDashboard }) {
             </Typography>
           </Alert>
         )}
-
       </Paper>
 
       <DataPreview data={preview} />
-
     </>
   );
 }

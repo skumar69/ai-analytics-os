@@ -1,27 +1,16 @@
 import { useEffect, useState, Component } from "react";
 import { Routes, Route } from "react-router-dom";
-import { Box, Typography, Button, Container, Grid, Paper, Divider } from "@mui/material";
-import { useAuth } from "./context/AuthContext";
+import {
+  Box,
+  Typography,
+  Button,
+  Container,
+  Grid,
+  Paper,
+  Divider,
+} from "@mui/material";
 
-// Catches render errors so the app never goes completely blank
-class ErrorBoundary extends Component {
-  state = { hasError: false, error: null };
-  static getDerivedStateFromError(error) { return { hasError: true, error }; }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <Box sx={{ p: 4, textAlign: "center", mt: 8 }}>
-          <Typography variant="h5" color="error" gutterBottom>Something went wrong</Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            {this.state.error?.message}
-          </Typography>
-          <Button variant="contained" onClick={() => window.location.reload()}>Reload</Button>
-        </Box>
-      );
-    }
-    return this.props.children;
-  }
-}
+import { useAuth } from "./context/AuthContext";
 
 import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
@@ -32,6 +21,7 @@ import FileUpload from "./components/FileUpload";
 import AIInsights from "./components/AIInsights";
 import HighRiskAssets from "./components/HighRiskAssets";
 import NotificationTable from "./components/NotificationTable";
+
 import ReliabilityDashboard from "./pages/ReliabilityDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import AICopilot from "./pages/AICopilot";
@@ -41,16 +31,83 @@ import PriorityPieChart from "./charts/PriorityPieChart";
 import StatusBarChart from "./charts/StatusBarChart";
 import PlantChart from "./charts/PlantChart";
 
+// ======================================================
+// Backend URL
+// ======================================================
 
-// AuthGate renders LoginPage or App — hooks live in App so they're always called
-function AuthGate() {
-  const { user } = useAuth();
-  if (!user) return <LoginPage />;
-  return <ErrorBoundary><AppShell /></ErrorBoundary>;
+const API =
+  import.meta.env.VITE_API_URL ||
+  "https://visioniq-backend-xhbo.onrender.com";
+
+// ======================================================
+// Error Boundary
+// ======================================================
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+    };
+  }
+
+  static getDerivedStateFromError(error) {
+    return {
+      hasError: true,
+      error,
+    };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ p: 4, textAlign: "center", mt: 8 }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            Something went wrong
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            {this.state.error?.message}
+          </Typography>
+
+          <Button
+            variant="contained"
+            onClick={() => window.location.reload()}
+          >
+            Reload
+          </Button>
+        </Box>
+      );
+    }
+
+    return this.props.children;
+  }
 }
 
-function AppShell() {
+// ======================================================
+// Authentication Gate
+// ======================================================
 
+function AuthGate() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  return (
+    <ErrorBoundary>
+      <AppShell />
+    </ErrorBoundary>
+  );
+}
+
+// ======================================================
+// Dashboard
+// ======================================================
+
+function AppShell() {
   const [stats, setStats] = useState({
     work_orders: 0,
     notifications: 0,
@@ -60,17 +117,9 @@ function AppShell() {
     ai_score: 96,
   });
 
-  // ======================================================
-  // Load Dashboard KPIs
-  // ======================================================
-
   const fetchDashboard = async () => {
-
     try {
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/stats"
-      );
+      const response = await fetch(`${API}/stats`);
 
       if (!response.ok) {
         throw new Error("Unable to load dashboard");
@@ -84,25 +133,17 @@ function AppShell() {
         ...prev,
         ...data,
       }));
-
     } catch (err) {
-
-      console.error(err);
-
+      console.error("Dashboard Error:", err);
     }
-
   };
 
   useEffect(() => {
-
     fetchDashboard();
-
   }, []);
 
   return (
-
     <>
-
       <Navbar />
 
       <Sidebar />
@@ -115,68 +156,92 @@ function AppShell() {
           mb: 8,
         }}
       >
-
         <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <DashboardHeader />
 
-          {/* Main Dashboard */}
-          <Route path="/" element={
-            <>
-              <DashboardHeader />
-              <KPISection stats={stats} />
+                <KPISection stats={stats} />
 
-              <Paper elevation={4} sx={{ mt: 5, p: 3, borderRadius: 3 }}>
-                <Typography variant="h5" fontWeight="bold">
-                  📈 Monthly Work Order Trend
+                <Paper elevation={4} sx={{ mt: 5, p: 3, borderRadius: 3 }}>
+                  <Typography variant="h5" fontWeight="bold">
+                    📈 Monthly Work Order Trend
+                  </Typography>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  <WorkOrderChart />
+                </Paper>
+
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                  sx={{ mt: 5, mb: 2 }}
+                >
+                  📊 Incident Analytics
                 </Typography>
-                <Divider sx={{ my: 2 }} />
-                <WorkOrderChart />
-              </Paper>
 
-              <Typography variant="h5" fontWeight="bold" sx={{ mt: 5, mb: 2 }}>
-                📊 Incident Analytics
-              </Typography>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <PriorityPieChart />
+                  </Grid>
 
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}><PriorityPieChart /></Grid>
-                <Grid item xs={12} md={6}><StatusBarChart /></Grid>
-                <Grid item xs={12} md={6}><PlantChart /></Grid>
-                <Grid item xs={12} md={6}><AIInsights /></Grid>
-              </Grid>
+                  <Grid item xs={12} md={6}>
+                    <StatusBarChart />
+                  </Grid>
 
-              <HighRiskAssets />
-              <NotificationTable />
+                  <Grid item xs={12} md={6}>
+                    <PlantChart />
+                  </Grid>
 
-              <Paper elevation={4} sx={{ mt: 5, p: 3, borderRadius: 3 }}>
-                <Typography variant="h5" fontWeight="bold">
-                  📂 Upload SAP Excel File
-                </Typography>
-                <Divider sx={{ my: 2 }} />
-                <FileUpload refreshDashboard={fetchDashboard} />
-              </Paper>
-            </>
-          } />
+                  <Grid item xs={12} md={6}>
+                    <AIInsights />
+                  </Grid>
+                </Grid>
 
-          {/* Reliability Analytics */}
-          <Route path="/reliability" element={<ReliabilityDashboard />} />
+                <HighRiskAssets />
 
-          {/* Executive Dashboard */}
-          <Route path="/executive" element={<ExecutiveDashboard />} />
+                <NotificationTable />
 
-          {/* AI Copilot */}
-          <Route path="/ai" element={<AICopilot />} />
+                <Paper elevation={4} sx={{ mt: 5, p: 3, borderRadius: 3 }}>
+                  <Typography variant="h5" fontWeight="bold">
+                    📂 Upload SAP Excel File
+                  </Typography>
 
+                  <Divider sx={{ my: 2 }} />
+
+                  <FileUpload refreshDashboard={fetchDashboard} />
+                </Paper>
+              </>
+            }
+          />
+
+          <Route
+            path="/reliability"
+            element={<ReliabilityDashboard />}
+          />
+
+          <Route
+            path="/executive"
+            element={<ExecutiveDashboard />}
+          />
+
+          <Route
+            path="/ai"
+            element={<AICopilot />}
+          />
         </Routes>
-
       </Container>
-
     </>
-
   );
-
 }
 
-function App() {
+// ======================================================
+// Main App
+// ======================================================
+
+export default function App() {
   return <AuthGate />;
 }
-
-export default App;

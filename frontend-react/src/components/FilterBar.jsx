@@ -1,59 +1,141 @@
 import { useEffect, useState } from "react";
+
 import {
-  Box, Grid, TextField, MenuItem, Button, Tooltip,
+  Box,
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+  Tooltip,
 } from "@mui/material";
+
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ClearIcon from "@mui/icons-material/Clear";
 
-const EMPTY = { plant: "", priority: "", status: "", planner_group: "", date_from: "", date_to: "" };
+import API from "../services/api";
+
+const EMPTY = {
+  plant: "",
+  priority: "",
+  status: "",
+  planner_group: "",
+  date_from: "",
+  date_to: "",
+};
 
 export default function FilterBar({ onFilter, onClear }) {
-  const [options, setOptions] = useState({ plants: [], priorities: [], statuses: [], planner_groups: [] });
+  const [options, setOptions] = useState({
+    plants: [],
+    priorities: [],
+    statuses: [],
+    planner_groups: [],
+  });
+
   const [filters, setFilters] = useState(EMPTY);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/analytics/filter-options")
-      .then((r) => r.json())
-      .then((d) => setOptions(d))
-      .catch(() => {});
+    loadFilterOptions();
   }, []);
 
-  const set = (key) => (e) => setFilters((f) => ({ ...f, [key]: e.target.value }));
+  const loadFilterOptions = async () => {
+    try {
+      const response = await fetch(`${API}/analytics/filter-options`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      setOptions({
+        plants: data.plants || [],
+        priorities: data.priorities || [],
+        statuses: data.statuses || [],
+        planner_groups: data.planner_groups || [],
+      });
+    } catch (error) {
+      console.error("Filter Options Error:", error);
+
+      setOptions({
+        plants: [],
+        priorities: [],
+        statuses: [],
+        planner_groups: [],
+      });
+    }
+  };
+
+  const handleChange = (key) => (event) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: event.target.value,
+    }));
+  };
 
   const apply = () => {
-    const active = Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== ""));
-    onFilter(active);
+    const activeFilters = Object.fromEntries(
+      Object.entries(filters).filter(([, value]) => value !== "")
+    );
+
+    onFilter(activeFilters);
   };
 
   const clear = () => {
     setFilters(EMPTY);
-    onClear();
+
+    if (onClear) {
+      onClear();
+    }
   };
 
   return (
     <Box
       sx={{
-        p: 2, mb: 3, borderRadius: 2,
-        background: "rgba(25, 118, 210, 0.06)",
-        border: "1px solid rgba(25, 118, 210, 0.2)",
+        p: 2,
+        mb: 3,
+        borderRadius: 2,
+        background: "rgba(25,118,210,0.06)",
+        border: "1px solid rgba(25,118,210,0.20)",
       }}
     >
       <Grid container spacing={2} alignItems="center">
         {[
-          { key: "plant",         label: "Plant",          opts: options.plants ?? [] },
-          { key: "priority",      label: "Priority",       opts: options.priorities ?? [] },
-          { key: "status",        label: "Status",         opts: options.statuses ?? [] },
-          { key: "planner_group", label: "Planner Group",  opts: options.planner_groups ?? [] },
-        ].map(({ key, label, opts }) => (
+          {
+            key: "plant",
+            label: "Plant",
+            options: options.plants,
+          },
+          {
+            key: "priority",
+            label: "Priority",
+            options: options.priorities,
+          },
+          {
+            key: "status",
+            label: "Status",
+            options: options.statuses,
+          },
+          {
+            key: "planner_group",
+            label: "Planner Group",
+            options: options.planner_groups,
+          },
+        ].map(({ key, label, options }) => (
           <Grid item xs={6} sm={3} md={2} key={key}>
             <TextField
-              select size="small" fullWidth
-              label={label} value={filters[key]}
-              onChange={set(key)}
+              select
+              fullWidth
+              size="small"
+              label={label}
+              value={filters[key]}
+              onChange={handleChange(key)}
             >
               <MenuItem value="">All</MenuItem>
-              {opts.filter(Boolean).map((o) => (
-                <MenuItem key={o} value={o}>{o}</MenuItem>
+
+              {options.map((item) => (
+                <MenuItem key={item} value={item}>
+                  {item}
+                </MenuItem>
               ))}
             </TextField>
           </Grid>
@@ -61,27 +143,46 @@ export default function FilterBar({ onFilter, onClear }) {
 
         <Grid item xs={6} sm={3} md={2}>
           <TextField
-            size="small" fullWidth type="date" label="From"
+            fullWidth
+            size="small"
+            type="date"
+            label="From"
             InputLabelProps={{ shrink: true }}
-            value={filters.date_from} onChange={set("date_from")}
+            value={filters.date_from}
+            onChange={handleChange("date_from")}
           />
         </Grid>
 
         <Grid item xs={6} sm={3} md={2}>
           <TextField
-            size="small" fullWidth type="date" label="To"
+            fullWidth
+            size="small"
+            type="date"
+            label="To"
             InputLabelProps={{ shrink: true }}
-            value={filters.date_to} onChange={set("date_to")}
+            value={filters.date_to}
+            onChange={handleChange("date_to")}
           />
         </Grid>
 
         <Grid item xs={12} sm="auto">
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Button variant="contained" size="small" startIcon={<FilterListIcon />} onClick={apply}>
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<FilterListIcon />}
+              onClick={apply}
+            >
               Apply
             </Button>
+
             <Tooltip title="Clear all filters">
-              <Button variant="outlined" size="small" startIcon={<ClearIcon />} onClick={clear}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<ClearIcon />}
+                onClick={clear}
+              >
                 Clear
               </Button>
             </Tooltip>

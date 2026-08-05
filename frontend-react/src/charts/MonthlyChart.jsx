@@ -18,6 +18,8 @@ import {
   Box,
 } from "@mui/material";
 
+import API from "../services/api";
+
 export default function MonthlyChart() {
 
   const [data, setData] = useState([]);
@@ -31,9 +33,7 @@ export default function MonthlyChart() {
 
     try {
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/workorder-trend"
-      );
+      const response = await fetch(`${API}/workorder-trend`);
 
       if (!response.ok) {
         throw new Error("Unable to fetch Monthly Trend");
@@ -47,7 +47,8 @@ export default function MonthlyChart() {
 
     } catch (err) {
 
-      console.error(err);
+      console.error("Monthly Trend Error:", err);
+
       setData([]);
 
     } finally {

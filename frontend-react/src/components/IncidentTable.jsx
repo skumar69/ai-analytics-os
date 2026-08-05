@@ -11,7 +11,10 @@ import {
   TableCell,
   Chip,
   CircularProgress,
+  Box,
 } from "@mui/material";
+
+import API from "../services/api";
 
 export default function IncidentTable() {
 
@@ -19,29 +22,95 @@ export default function IncidentTable() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
-    fetch("http://127.0.0.1:8000/high-risk-assets")
-      .then((res) => res.json())
-      .then((data) => {
-        setRows(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-
+    loadData();
   }, []);
 
+  const loadData = async () => {
+
+    try {
+
+      const response = await fetch(`${API}/high-risk-assets`);
+
+      if (!response.ok) {
+        throw new Error("Unable to load High Risk Assets");
+      }
+
+      const data = await response.json();
+
+      console.log("High Risk Assets:", data);
+
+      setRows(Array.isArray(data) ? data : []);
+
+    } catch (err) {
+
+      console.error("IncidentTable Error:", err);
+
+      setRows([]);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
   const getColor = (priority) => {
+
     switch (priority) {
+
       case "Critical":
         return "error";
+
       case "High":
         return "warning";
+
       case "Medium":
         return "info";
+
       default:
         return "success";
+
     }
+
   };
+
+  if (loading) {
+
+    return (
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          borderRadius: 3,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </Paper>
+    );
+
+  }
+
+  if (rows.length === 0) {
+
+    return (
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          borderRadius: 3,
+        }}
+      >
+        <Typography align="center">
+          No High Risk Assets Available
+        </Typography>
+      </Paper>
+    );
+
+  }
 
   return (
 
@@ -53,15 +122,16 @@ export default function IncidentTable() {
       }}
     >
 
-      <Typography variant="h5" fontWeight="bold">
+      <Typography
+        variant="h5"
+        fontWeight="bold"
+      >
         🚨 High Risk Assets
       </Typography>
 
       <Divider sx={{ my: 2 }} />
 
-      {loading ? (
-        <CircularProgress />
-      ) : (
+      <Box sx={{ overflowX: "auto" }}>
 
         <Table>
 
@@ -87,7 +157,10 @@ export default function IncidentTable() {
 
             {rows.map((row, index) => (
 
-              <TableRow key={index} hover>
+              <TableRow
+                key={index}
+                hover
+              >
 
                 <TableCell>{row.equipment}</TableCell>
 
@@ -98,6 +171,7 @@ export default function IncidentTable() {
                   <Chip
                     label={row.priority}
                     color={getColor(row.priority)}
+                    size="small"
                   />
 
                 </TableCell>
@@ -114,7 +188,7 @@ export default function IncidentTable() {
 
         </Table>
 
-      )}
+      </Box>
 
     </Paper>
 

@@ -4,13 +4,14 @@ import {
   CircularProgress, Divider, Avatar, IconButton, Tooltip,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import API from "../services/api";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import PersonIcon from "@mui/icons-material/Person";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteForever";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import PageHeader from "../components/PageHeader";
 
-const API = "http://127.0.0.1:8000";
+//const API = "http://127.0.0.1:8000";
 
 const WELCOME = {
   role: "assistant",

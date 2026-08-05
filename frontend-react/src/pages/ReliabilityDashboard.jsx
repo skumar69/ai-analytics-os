@@ -3,11 +3,17 @@ import { Box, Grid, Button, Tooltip } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
+import API from "../services/api";
+
 import FilterBar from "../components/FilterBar";
 import DrillDownDialog from "../components/DrillDownDialog";
 import PageHeader from "../components/PageHeader";
 import ErrorBanner from "../components/ErrorBanner";
-import { KPISkeletons, ChartSkeleton, TableSkeleton } from "../components/LoadingSkeletons";
+import {
+  KPISkeletons,
+  ChartSkeleton,
+  TableSkeleton,
+} from "../components/LoadingSkeletons";
 import MTTRCard from "../components/MTTRCard";
 import MTBFCard from "../components/MTBFCard";
 import PMComplianceCard from "../components/PMComplianceCard";
@@ -16,8 +22,6 @@ import EquipmentHealthGauge from "../components/EquipmentHealthGauge";
 import TopFailureTable from "../components/TopFailureTable";
 import BacklogChart from "../components/BacklogChart";
 import WorkOrderAgeChart from "../components/WorkOrderAgeChart";
-
-const API = "http://127.0.0.1:8000";
 
 function buildQuery(filters) {
   const qs = new URLSearchParams(filters).toString();
@@ -31,35 +35,69 @@ export default function ReliabilityDashboard() {
   const [filters, setFilters] = useState({});
   const [drillEquipment, setDrillEquipment] = useState(null);
 
-  const load = useCallback((activeFilters = {}) => {
-    setLoading(true);
-    setError("");
-    fetch(`${API}/analytics/dashboard${buildQuery(activeFilters)}`)
-      .then((r) => { if (!r.ok) throw new Error(`Server error ${r.status}`); return r.json(); })
-      .then(setData)
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+  const load = useCallback(async (activeFilters = {}) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        `${API}/analytics/dashboard${buildQuery(activeFilters)}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Server Error ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      setData(result);
+
+    } catch (err) {
+      console.error("Reliability Dashboard:", err);
+      setError(err.message || "Unable to load dashboard.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const handleFilter = (f) => { setFilters(f); load(f); };
-  const handleClear  = ()  => { setFilters({}); load({}); };
-  const handleExport = () => window.open(`${API}/analytics/export${buildQuery(filters)}`, "_blank");
+  const handleFilter = (f) => {
+    setFilters(f);
+    load(f);
+  };
 
-  const mttr       = data?.mttr ?? {};
-  const mtbf       = data?.mtbf ?? {};
+  const handleClear = () => {
+    setFilters({});
+    load({});
+  };
+
+  const handleExport = () => {
+    window.open(
+      `${API}/analytics/export${buildQuery(filters)}`,
+      "_blank"
+    );
+  };
+
+  const mttr = data?.mttr ?? {};
+  const mtbf = data?.mtbf ?? {};
   const compliance = data?.pm_compliance ?? {};
-  const breakdown  = data?.breakdown_percentage ?? {};
-  const backlog    = data?.backlog ?? {};
-  const age        = data?.work_order_age ?? {};
-  const health     = data?.health_scores ?? [];
-  const failures   = data?.top_failures ?? [];
+  const breakdown = data?.breakdown_percentage ?? {};
+  const backlog = data?.backlog ?? {};
+  const age = data?.work_order_age ?? {};
+  const health = data?.health_scores ?? [];
+  const failures = data?.top_failures ?? [];
 
-  // Merge health scores into failure rows
   const enrichedFailures = failures.map((f) => {
     const h = health.find((r) => r.equipment === f.equipment);
-    return { ...f, health_score: h?.health_score, risk: h?.risk };
+
+    return {
+      ...f,
+      health_score: h?.health_score,
+      risk: h?.risk,
+    };
   });
 
   return (
@@ -70,32 +108,59 @@ export default function ReliabilityDashboard() {
         breadcrumbs={["VisionIQ", "Reliability Analytics"]}
         actions={
           <>
-            <Tooltip title="Refresh data">
-              <Button variant="outlined" size="small" startIcon={<RefreshIcon />} onClick={() => load(filters)}>
+            <Tooltip title="Refresh Dashboard">
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<RefreshIcon />}
+                onClick={() => load(filters)}
+              >
                 Refresh
               </Button>
             </Tooltip>
-            <Button variant="contained" size="small" startIcon={<DownloadIcon />} onClick={handleExport}>
+
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<DownloadIcon />}
+              onClick={handleExport}
+            >
               Export Excel
             </Button>
           </>
         }
       />
 
-      {/* Filters */}
-      <FilterBar onFilter={handleFilter} onClear={handleClear} />
+      <FilterBar
+        onFilter={handleFilter}
+        onClear={handleClear}
+      />
 
-      <ErrorBanner message={error} onRetry={() => load(filters)} />
+      <ErrorBanner
+        message={error}
+        onRetry={() => load(filters)}
+      />
 
-      {/* KPI Cards */}
-      {loading ? <KPISkeletons count={4} /> : (
+      {loading ? (
+        <KPISkeletons count={4} />
+      ) : (
         <Grid container spacing={3} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={6} md={3}>
-            <MTTRCard value={mttr.mttr_days} sampleSize={mttr.sample_size} source={mttr.source} />
+            <MTTRCard
+              value={mttr.mttr_days}
+              sampleSize={mttr.sample_size}
+              source={mttr.source}
+            />
           </Grid>
+
           <Grid item xs={12} sm={6} md={3}>
-            <MTBFCard value={mtbf.mtbf_days} sampleSize={mtbf.sample_size} source={mtbf.source} />
+            <MTBFCard
+              value={mtbf.mtbf_days}
+              sampleSize={mtbf.sample_size}
+              source={mtbf.source}
+            />
           </Grid>
+
           <Grid item xs={12} sm={6} md={3}>
             <PMComplianceCard
               compliancePct={compliance.compliance_pct}
@@ -104,6 +169,7 @@ export default function ReliabilityDashboard() {
               source={compliance.source}
             />
           </Grid>
+
           <Grid item xs={12} sm={6} md={3}>
             <BreakdownCard
               breakdownPct={breakdown.breakdown_pct}
@@ -115,39 +181,60 @@ export default function ReliabilityDashboard() {
         </Grid>
       )}
 
-      {/* Equipment Health */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12}>
-          {loading ? <ChartSkeleton height={300} /> : (
-            <EquipmentHealthGauge data={health} onBarClick={(eq) => setDrillEquipment(eq)} />
+          {loading ? (
+            <ChartSkeleton height={300} />
+          ) : (
+            <EquipmentHealthGauge
+              data={health}
+              onBarClick={(eq) => setDrillEquipment(eq)}
+            />
           )}
         </Grid>
       </Grid>
 
-      {/* Top Failures + Backlog */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} md={6}>
-          {loading ? <TableSkeleton /> : (
-            <TopFailureTable data={enrichedFailures.slice(0, 10)} onRowClick={(eq) => setDrillEquipment(eq)} />
+          {loading ? (
+            <TableSkeleton />
+          ) : (
+            <TopFailureTable
+              data={enrichedFailures.slice(0, 10)}
+              onRowClick={(eq) => setDrillEquipment(eq)}
+            />
           )}
         </Grid>
+
         <Grid item xs={12} md={6}>
-          {loading ? <ChartSkeleton height={260} /> : (
-            <BacklogChart data={backlog.by_plant ?? []} />
+          {loading ? (
+            <ChartSkeleton height={260} />
+          ) : (
+            <BacklogChart
+              data={backlog.by_plant ?? []}
+            />
           )}
         </Grid>
       </Grid>
 
-      {/* Work Order Age */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          {loading ? <ChartSkeleton height={220} /> : (
-            <WorkOrderAgeChart buckets={age.buckets ?? []} avgDays={age.avg_age_days} maxDays={age.max_age_days} />
+          {loading ? (
+            <ChartSkeleton height={220} />
+          ) : (
+            <WorkOrderAgeChart
+              buckets={age.buckets ?? []}
+              avgDays={age.avg_age_days}
+              maxDays={age.max_age_days}
+            />
           )}
         </Grid>
       </Grid>
 
-      <DrillDownDialog equipment={drillEquipment} onClose={() => setDrillEquipment(null)} />
+      <DrillDownDialog
+        equipment={drillEquipment}
+        onClose={() => setDrillEquipment(null)}
+      />
     </Box>
   );
 }

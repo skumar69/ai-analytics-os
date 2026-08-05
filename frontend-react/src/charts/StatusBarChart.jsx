@@ -17,6 +17,8 @@ import {
   Box,
 } from "@mui/material";
 
+import API from "../services/api";
+
 export default function StatusBarChart() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,19 +29,25 @@ export default function StatusBarChart() {
 
   const loadChart = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/status-chart");
+      const response = await fetch(`${API}/status-chart`);
 
       if (!response.ok) {
-        throw new Error("Failed to load chart");
+        throw new Error(`HTTP Error: ${response.status}`);
       }
 
       const result = await response.json();
 
       console.log("Status Chart:", result);
 
-      setData(result);
+      if (Array.isArray(result)) {
+        setData(result);
+      } else {
+        console.error("Invalid response format:", result);
+        setData([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("StatusBarChart Error:", err);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -60,38 +68,45 @@ export default function StatusBarChart() {
     );
   }
 
-  if (!data.length) {
-    return (
-      <Paper
-        sx={{
-          height: 320,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Typography>No data available</Typography>
-      </Paper>
-    );
-  }
-
   return (
-    <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        borderRadius: 3,
+      }}
+    >
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        gutterBottom
+      >
+        Status Distribution
+      </Typography>
 
-        <XAxis dataKey="status" />
+      {data.length === 0 ? (
+        <Typography align="center">
+          No chart data available
+        </Typography>
+      ) : (
+        <ResponsiveContainer width="100%" height={320}>
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
 
-        <YAxis />
+            <XAxis dataKey="status" />
 
-        <Tooltip />
+            <YAxis />
 
-        <Bar
-          dataKey="count"
-          fill="#1976d2"
-          radius={[6, 6, 0, 0]}
-        />
-      </BarChart>
-    </ResponsiveContainer>
+            <Tooltip />
+
+            <Bar
+              dataKey="count"
+              fill="#1976d2"
+              radius={[6, 6, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </Paper>
   );
 }

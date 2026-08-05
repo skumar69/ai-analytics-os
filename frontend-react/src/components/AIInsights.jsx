@@ -11,6 +11,7 @@ import {
   Grid,
   Chip,
   CircularProgress,
+  Box,
 } from "@mui/material";
 
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
@@ -18,28 +19,62 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import BuildCircleIcon from "@mui/icons-material/BuildCircle";
 import MonitorHeartIcon from "@mui/icons-material/MonitorHeart";
 
-export default function AIInsights() {
+import API from "../services/api";
 
+export default function AIInsights() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-
-    fetch("http://127.0.0.1:8000/ai-insights")
-      .then((res) => res.json())
-      .then((json) => setData(json))
-      .catch(console.error);
-
+    loadInsights();
   }, []);
 
-  if (!data)
+  const loadInsights = async () => {
+    try {
+      const response = await fetch(`${API}/ai-insights`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      console.log("AI Insights:", result);
+
+      setData(result);
+    } catch (error) {
+      console.error("AIInsights Error:", error);
+
+      setData({
+        summary: {
+          critical_incidents: 0,
+          overdue_pm: 0,
+          high_risk_assets: 0,
+          asset_health: "N/A",
+        },
+        recommendations: [
+          "Unable to load AI recommendations.",
+          "Please verify backend connectivity.",
+        ],
+      });
+    }
+  };
+
+  if (!data) {
     return (
-      <Paper sx={{ p: 4, textAlign: "center" }}>
-        <CircularProgress />
+      <Paper sx={{ p: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <CircularProgress />
+        </Box>
       </Paper>
     );
+  }
 
   return (
-
     <Paper
       elevation={4}
       sx={{
@@ -47,7 +82,6 @@ export default function AIInsights() {
         borderRadius: 3,
       }}
     >
-
       <Typography variant="h5" fontWeight="bold">
         🤖 AI Insights
       </Typography>
@@ -55,12 +89,11 @@ export default function AIInsights() {
       <Divider sx={{ my: 2 }} />
 
       <Grid container spacing={2}>
-
         <Grid item xs={12} md={3}>
           <Chip
             color="error"
             icon={<WarningAmberIcon />}
-            label={`Critical: ${data.summary.critical_incidents}`}
+            label={`Critical: ${data.summary?.critical_incidents ?? 0}`}
           />
         </Grid>
 
@@ -68,14 +101,14 @@ export default function AIInsights() {
           <Chip
             color="warning"
             icon={<BuildCircleIcon />}
-            label={`Overdue PM: ${data.summary.overdue_pm}`}
+            label={`Overdue PM: ${data.summary?.overdue_pm ?? 0}`}
           />
         </Grid>
 
         <Grid item xs={12} md={3}>
           <Chip
             color="secondary"
-            label={`High Risk: ${data.summary.high_risk_assets}`}
+            label={`High Risk: ${data.summary?.high_risk_assets ?? 0}`}
           />
         </Grid>
 
@@ -83,41 +116,28 @@ export default function AIInsights() {
           <Chip
             color="success"
             icon={<MonitorHeartIcon />}
-            label={`Health: ${data.summary.asset_health}`}
+            label={`Health: ${data.summary?.asset_health ?? "N/A"}`}
           />
         </Grid>
-
       </Grid>
 
       <Divider sx={{ my: 3 }} />
 
-      <Typography
-        variant="h6"
-        gutterBottom
-      >
+      <Typography variant="h6" gutterBottom>
         AI Recommendations
       </Typography>
 
       <List>
-
-        {data.recommendations.map((item, index) => (
-
+        {(data.recommendations || []).map((item, index) => (
           <ListItem key={index}>
-
             <ListItemIcon>
               <LightbulbIcon color="warning" />
             </ListItemIcon>
 
             <ListItemText primary={item} />
-
           </ListItem>
-
         ))}
-
       </List>
-
     </Paper>
-
   );
-
 }

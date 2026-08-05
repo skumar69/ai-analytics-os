@@ -12,7 +12,11 @@ import {
 import {
   Paper,
   Typography,
+  CircularProgress,
+  Box,
 } from "@mui/material";
+
+import API from "../services/api";
 
 const COLORS = [
   "#d32f2f",
@@ -22,16 +26,83 @@ const COLORS = [
 ];
 
 export default function PriorityPieChart() {
+
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/priority-chart")
-      .then((res) => res.json())
-      .then((data) => setData(data))
-      .catch((err) => console.log(err));
+    loadChart();
   }, []);
 
+  const loadChart = async () => {
+
+    try {
+
+      const response = await fetch(`${API}/priority-chart`);
+
+      if (!response.ok) {
+        throw new Error("Unable to load Priority Chart");
+      }
+
+      const result = await response.json();
+
+      console.log("Priority Chart:", result);
+
+      setData(Array.isArray(result) ? result : []);
+
+    } catch (err) {
+
+      console.error("Priority Chart Error:", err);
+
+      setData([]);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  if (loading) {
+
+    return (
+      <Box
+        sx={{
+          height: 320,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+
+  }
+
+  if (data.length === 0) {
+
+    return (
+      <Paper
+        elevation={4}
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          height: 320,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography>No Priority Data Available</Typography>
+      </Paper>
+    );
+
+  }
+
   return (
+
     <Paper
       elevation={4}
       sx={{
@@ -40,6 +111,7 @@ export default function PriorityPieChart() {
         height: 420,
       }}
     >
+
       <Typography
         variant="h6"
         fontWeight="bold"
@@ -52,7 +124,9 @@ export default function PriorityPieChart() {
         width="100%"
         height={320}
       >
+
         <PieChart>
+
           <Pie
             data={data}
             dataKey="value"
@@ -60,19 +134,26 @@ export default function PriorityPieChart() {
             outerRadius={110}
             label
           >
+
             {data.map((entry, index) => (
               <Cell
                 key={index}
                 fill={COLORS[index % COLORS.length]}
               />
             ))}
+
           </Pie>
 
           <Tooltip />
 
           <Legend />
+
         </PieChart>
+
       </ResponsiveContainer>
+
     </Paper>
+
   );
+
 }

@@ -17,8 +17,9 @@ import {
   Box,
 } from "@mui/material";
 
-export default function WorkOrderChart() {
+import API from "../services/api";
 
+export default function WorkOrderChart() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -27,41 +28,32 @@ export default function WorkOrderChart() {
   }, []);
 
   const loadChart = async () => {
-
     try {
+      const response = await fetch(`${API}/workorder-trend`);
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/workorder-trend"
-      );
-
-      console.log("Status :", response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
 
       const result = await response.json();
 
-      console.log("API Response :", result);
+      console.log("Work Order Trend:", result);
 
       if (Array.isArray(result)) {
         setData(result);
       } else {
-        console.error("Invalid response format");
+        console.error("Invalid response format:", result);
         setData([]);
       }
-
     } catch (error) {
-
-      console.error(error);
+      console.error("WorkOrderChart Error:", error);
       setData([]);
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   if (loading) {
-
     return (
       <Box
         sx={{
@@ -74,31 +66,17 @@ export default function WorkOrderChart() {
         <CircularProgress />
       </Box>
     );
-
   }
 
   return (
-
-    <Paper
-      elevation={0}
-      sx={{ p: 2 }}
-    >
-
+    <Paper elevation={0} sx={{ p: 2 }}>
       {data.length === 0 ? (
-
         <Typography align="center">
           No chart data available
         </Typography>
-
       ) : (
-
-        <ResponsiveContainer
-          width="100%"
-          height={350}
-        >
-
+        <ResponsiveContainer width="100%" height={350}>
           <LineChart data={data}>
-
             <CartesianGrid strokeDasharray="3 3" />
 
             <XAxis dataKey="month" />
@@ -114,15 +92,9 @@ export default function WorkOrderChart() {
               strokeWidth={3}
               dot={{ r: 5 }}
             />
-
           </LineChart>
-
         </ResponsiveContainer>
-
       )}
-
     </Paper>
-
   );
-
 }
